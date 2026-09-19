@@ -17,8 +17,9 @@ jobs:
           mkdir -p "$RUNNER_TEMP/human-assets"
           cd "$RUNNER_TEMP/human-assets"
           curl -fL --retry 5 --retry-delay 3 \
-            "https://www.blender.org/download/demo/asset-bundles/human-base-meshes/human-base-meshes-bundle-v1.4.1.zip" \
+            "https://download.blender.org/demo/asset-bundles/human-base-meshes/human-base-meshes-bundle-v1.4.1.zip" \
             -o human-base-meshes.zip
+          file human-base-meshes.zip
           unzip -q human-base-meshes.zip -d extracted
           find extracted -maxdepth 4 -type f -printf '%p %s bytes\n'
           mkdir output
@@ -31,5 +32,3 @@ jobs:
           path: ${{ runner.temp }}/human-assets/output
           compression-level: 0
           retention-days: 1
-
-# Temporary workflow created for the Blender reconstruction asset pipeline.
