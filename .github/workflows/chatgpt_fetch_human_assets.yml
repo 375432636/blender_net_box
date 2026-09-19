@@ -1,0 +1,33 @@
+name: ChatGPT Temporary Human Asset Fetch
+
+on:
+  push:
+    branches:
+      - chatgpt-temp-human-assets-20260920
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download official Blender Human Base Meshes
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/human-assets"
+          cd "$RUNNER_TEMP/human-assets"
+          curl -fL --retry 5 --retry-delay 3 \
+            "https://www.blender.org/download/demo/asset-bundles/human-base-meshes/human-base-meshes-bundle-v1.4.1.zip" \
+            -o human-base-meshes.zip
+          unzip -q human-base-meshes.zip -d extracted
+          find extracted -maxdepth 4 -type f -printf '%p %s bytes\n'
+          mkdir output
+          find extracted -type f \( -name '*.blend' -o -iname '*license*' -o -iname '*readme*' \) -exec cp -v '{}' output/ \;
+          test -n "$(find output -maxdepth 1 -name '*.blend' -print -quit)"
+      - name: Upload selected assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-human-base-meshes-v1.4.1
+          path: ${{ runner.temp }}/human-assets/output
+          compression-level: 0
+          retention-days: 1
