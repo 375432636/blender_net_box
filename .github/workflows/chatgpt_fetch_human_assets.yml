@@ -1,4 +1,4 @@
-name: ChatGPT Temporary Human Asset Fetch
+name: ChatGPT Temporary Blender Runtime Fetch
 
 on:
   push:
@@ -10,28 +10,22 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Download Blender Studio human meshes exported as GLB
+      - name: Download stable Blender LTS runtime
         shell: bash
         run: |
           set -euxo pipefail
-          mkdir -p "$RUNNER_TEMP/human-assets/output"
-          cd "$RUNNER_TEMP/human-assets/output"
-          curl -fL --retry 5 --retry-delay 2 \
-            "https://raw.githubusercontent.com/GilHyeonSoo/HealthAPP/main/assets/models/blender-human-male.glb" \
-            -o blender-human-male.glb
-          curl -fL --retry 5 --retry-delay 2 \
-            "https://raw.githubusercontent.com/GilHyeonSoo/HealthAPP/main/assets/models/blender-human-female.glb" \
-            -o blender-human-female.glb
-          curl -fL --retry 5 --retry-delay 2 \
-            "https://raw.githubusercontent.com/GilHyeonSoo/HealthAPP/main/assets/models/BLENDER_HUMAN_BASE_MESHES_LICENSE.md" \
-            -o BLENDER_HUMAN_BASE_MESHES_LICENSE.md
-          file *.glb
-          test "$(stat -c %s blender-human-male.glb)" -gt 1000000
-          test "$(stat -c %s blender-human-female.glb)" -gt 1000000
-      - name: Upload selected assets
+          mkdir -p "$RUNNER_TEMP/blender-runtime/output"
+          cd "$RUNNER_TEMP/blender-runtime/output"
+          curl -fL --retry 5 --retry-delay 3 \
+            "https://download.blender.org/release/Blender4.2/blender-4.2.23-linux-x64.tar.xz" \
+            -o blender-4.2.23-linux-x64.tar.xz
+          file blender-4.2.23-linux-x64.tar.xz
+          test "$(stat -c %s blender-4.2.23-linux-x64.tar.xz)" -gt 200000000
+          sha256sum blender-4.2.23-linux-x64.tar.xz > blender-4.2.23-linux-x64.tar.xz.sha256
+      - name: Upload Blender runtime
         uses: actions/upload-artifact@v4
         with:
-          name: blender-human-base-meshes-glb
-          path: ${{ runner.temp }}/human-assets/output
+          name: blender-4.2.23-linux-x64
+          path: ${{ runner.temp }}/blender-runtime/output
           compression-level: 0
           retention-days: 1
